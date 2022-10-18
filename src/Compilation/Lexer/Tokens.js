@@ -82,6 +82,7 @@ const TOKENS = {
 
 	kw_void: 'void',
 	kw_int: 'int',
+	kw_float: 'float',
 	kw_string: 'string',
 }
 

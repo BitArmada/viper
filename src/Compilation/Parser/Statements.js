@@ -1,29 +1,41 @@
 import Statement from "./Statement.js";
 
-const defaultTypes = [
-    'int',
-    'string',
-    'boolean',
-];
-
 class VariableDefinition extends Statement {
-    constructor(type, name){
-        super();
-        this.type = "int"; // default type;
+    constructor(type, name, body){
+        super(body);
+        this.type = type ?? "int"; // default type;
+        this.name = name;
     }
 }
 
-function matchStatement(statement){
-    const type = array[0].slice(3);
-
-    if(defaultTypes.includes(type)){ // variable definition
-        
+class Constant extends Statement {
+    constructor(type, value){
+        super();
+        this.type = type ?? "int"; // default type;
+        this.value = value ?? 0;
     }
+}
 
-    return null;
+class FunctionDefinition extends Statement {
+    constructor(type, name, args, body){
+        super(body);
+        this.returnType = type ?? "void"; // default type;
+        this.name = name;
+        this.args = args;
+    }
+}
+
+class FunctionCall extends Statement {
+    constructor(name, args){
+        super();
+        this.name = name;
+        this.args = args;
+    }
 }
 
 export {
-    matchStatement,
     VariableDefinition,
+    FunctionDefinition,
+    FunctionCall,
+    Constant,
 };

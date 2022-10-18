@@ -1,0 +1,30 @@
+function vector(array){
+	return [
+		array.length,
+		...array
+	];
+}
+
+const WASM = {
+	versionStatement: [
+		0x00,0x61,0x73,0x6D,0x01,0x00,0x00,0x00
+	],
+
+	TYPESEC: 0x1,
+	IMPORTSEC: 0x2,
+	FUNCSEC: 0x3,
+
+	FUNCTYPE: 0x60,
+
+	// number types
+	i32: 0x7f,
+	i64: 0x7e,
+    f32: 0x7d,
+	f64: 0x7c,
+
+	END: 0xB,
+
+	vector,
+};
+
+export default WASM;

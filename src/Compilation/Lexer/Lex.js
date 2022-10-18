@@ -1,12 +1,14 @@
 import TOKENS from './Tokens.js';
 
 function charType(char){
-    if(char.match(/^[ |\n]/)){
+    if(char.match(/^[ |\n|\t]/)){
         return 'whitespace';
     }else if(char.match(/^[A-Za-z_]+$/)){
         return 'letter';
     }else if (char.match(/^[0-9]+$/)){
         return 'number';
+    }else if (char.match(/^[\(|\)|\{|\}|\[|\]]+$/)){
+        return 'braces';
     }else{
         return 'other';
     }
@@ -32,22 +34,37 @@ function Lex(text){
 
         const type = charType(char);
 
-        if(type !== lastType){
+        
+        if(type !== lastType || type == 'braces'){
             const token = getToken(word);
-
+            
             if(token){
                 tokens.push(token);
             }else if(lastType !== 'whitespace'){
                 tokens.push(word);
             }
-
+            
             word = "";
         }
         
         word += char;
 
+        if(i == text.length-1){
+            const token = getToken(word);
+            
+            if(token){
+                tokens.push(token);
+            }else if(lastType !== 'whitespace'){
+                tokens.push(word);
+            }
+            
+            word = "";
+        }
+
         lastType = type;
     }
+
+    console.log(tokens)
 
     return tokens;
 }

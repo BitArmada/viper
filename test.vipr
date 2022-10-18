@@ -1,6 +1,14 @@
 
-int a = 0;
+int a = 42;
+
+float b;
 
 int main() {
+    int c = 2;
+}
+
+int t(int G, int C){
     
 }
+
+main();

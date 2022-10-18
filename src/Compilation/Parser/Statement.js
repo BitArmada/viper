@@ -1,8 +1,8 @@
 
 
 class Statement {
-    constructor(){
-        this.body = {};
+    constructor(body){
+        this.body = body ?? [];
     }
 }
 

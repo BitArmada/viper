@@ -5,6 +5,7 @@ import Compile from './Compilation/Wasm/Compile.js';
 class Module {
     constructor(text){
         this.text = text;
+        this.exports;
     }
 
     compile(){
@@ -15,10 +16,8 @@ class Module {
 
         console.log(this.AST);
 
-        console.log(this.Wasm);
-
+        // document.getElementById('data').innerHTML = JSON.stringify(this.Wasm, null, 4);
         this.run();
-        // document.getElementById('data').innerHTML = JSON.stringify(this.AST, null, 4);
     }
 
     run(){
@@ -30,8 +29,9 @@ class Module {
         };
         
         WebAssembly.instantiate(this.Wasm, importObject).then((wasm)=>{
-            // console.log(wasm.instance.exports.add(10,5));
             console.log(wasm.instance);
+            this.exports = wasm.instance.exports;
+            document.getElementById('data').innerHTML += JSON.stringify(this.exports.barkai(40, 2), null, 4);
         });
     }
 

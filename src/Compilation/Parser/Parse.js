@@ -14,6 +14,7 @@ const beginers = [
     'kw_string',
     'kw_float',
     'kw_boolean',
+    'kw_return'
     // 'open_round',
     // 'close_round',
     // 'open_curly',
@@ -21,46 +22,6 @@ const beginers = [
     // 'open_square',
     // 'close_square',
 ];
-
-function matchStatement(statement){
-
-    if(statement.length == 0){
-        return false;
-    }
-
-    if(!TOKENS[statement[0]]){
-        var int = parseInt(statement[0], 10);
-        if(int !== NaN){
-            return new Statements.Constant('int', int);
-        }
-    }
-
-    if(defaultTypes[statement[0]]){
-        const type = defaultTypes[statement[0]];
-        if (!TOKENS[statement[1]]){
-            // next item is not a token
-            if(statement.length == 2){
-
-                // uninitialized variable definition
-                return new Statements.VariableDefinition(type, statement[1], null);
-
-            }else if(statement[2] == 'assign'){
-
-                // variable definition with value
-                var value = Parse(statement.slice(3));
-                return new Statements.VariableDefinition(type, statement[1], value);
-
-            }else if(statement[2] == 'open_round'){
-                // function
-                var body = statement.slice(5,-1);
-                console.log(statement)
-            }
-
-        }
-    }
-
-    return false;
-}
 
 function next(tokens, name){
     var l = [];
@@ -85,13 +46,14 @@ function nextBegining(tokens){
     return tokens;
 }
 
-function Parse(tokens){
-    var statement = [];
+function Parse(tokens, localVars){
 
     // create root node
     var tree = [];
 
     var identifiers = [];
+
+    var locals = localVars ?? [];
 
     while(tokens.length > 0){
 
@@ -121,6 +83,21 @@ function Parse(tokens){
                     tree.push(
                         new Statements.FunctionCall(name, args)
                     );
+                }else if(tokens[0] == 'add'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('add', left, right)
+                    );
+                }else{
+                    const id = locals.indexOf(name);
+                    if(id == -1){
+                        console.log('unknown variable reference: ' + name);
+                    }
+                    tree.push(
+                        new Statements.VariableReference(name, id)
+                    );
                 }
             }
         }
@@ -138,39 +115,57 @@ function Parse(tokens){
 
                 tokens.shift();
 
-                if(tokens[0] == 'semicolon'){
-                    value = [];
+                if(tokens[0] == 'semicolon' || tokens.length == 0){
+                    var value = [];
+                    const id = locals.length;
+                    locals.push(name);
                     tree.push(
-                        new Statements.VariableDefinition(type, name, value)
+                        new Statements.VariableDefinition(type, name, value, id)
                     )
                 }else if(tokens[0] == 'assign'){
                     // variable definition with value
                     tokens.shift();
                     var body = next(tokens, 'semicolon');
                     var value = Parse(body);
+
+                    const id = locals.length;
+                    locals.push(name);
+
                     tree.push(
-                        new Statements.VariableDefinition(type, name, value)
+                        new Statements.VariableDefinition(type, name, value, id)
                     )
                 }else if(tokens[0] == 'open_round'){
                     tokens.shift();
                     // arguments
                     var args = next(tokens, 'close_round');
                     var parsedArgs = [];
+                    var flocals = [];
                     while(args.length > 0){
                         var arg = next(args, 'comma');
-                        
+                        parsedArgs.push(...Parse(arg));
+
+                        flocals.push(parsedArgs[parsedArgs.length-1].name);
+
                         args.shift();
                     }
                     tokens.shift();
                     tokens.shift();
                     var t = next(tokens, 'close_curly');
                     tokens.shift();
-                    var body = Parse(t);
+                    var body = Parse(t, flocals);
+                    console.log(flocals)
                     tree.push(
-                        new Statements.FunctionDefinition(type, name, body)
+                        new Statements.FunctionDefinition(type, name, parsedArgs, body)
                     )
                 }
             }
+        }else if(tokens[0] == 'kw_return'){
+            tokens.shift();
+            var value = next(tokens, 'semicolon');
+            value = Parse(value, locals);
+            tree.push(
+                new Statements.Return(value)
+            );
         }
     }
 

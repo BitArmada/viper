@@ -27,12 +27,7 @@ function matchType(func, table){
 }
 
 function typeToWasm(type){
-    switch(type){
-        case 'int':
-            return WASM.i32;
-        case 'float':
-            return WASM.f32;
-    }
+    return WASM[WASM.toWasmType(type)];
 }
 
 function FuncTypesec(AST){

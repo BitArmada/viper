@@ -5,6 +5,17 @@ function vector(array){
 	];
 }
 
+function toWasmType(type){
+	switch(type){
+		case 'int':
+			return 'i32'
+			break;
+		case 'float':
+			return 'f32'
+			break;
+	}
+}
+
 const WASM = {
 	versionStatement: [
 		0x00,0x61,0x73,0x6D,0x01,0x00,0x00,0x00
@@ -35,7 +46,21 @@ const WASM = {
 	localget: 0x20,
 
 	// operations
-	add: 0x6A,
+	i32add: 0x6A,
+	i32sub: 0x6B,
+	i32mul: 0x6C,
+
+	i64add: 0x7C,
+	i64sub: 0x7D,
+	i64mul: 0x7E,
+
+	f32add: 0x92,
+	f32sub: 0x93,
+	f32mul: 0x94,
+
+	f64add: 0xA0,
+	f64sub: 0xA1,
+	f64mul: 0xA2,
 
 	funcidx: 0x00,
 	tableidx: 0x01,
@@ -45,6 +70,7 @@ const WASM = {
 	END: 0xB,
 
 	vector,
+	toWasmType,
 };
 
 export default WASM;

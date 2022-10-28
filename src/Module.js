@@ -31,7 +31,7 @@ class Module {
         WebAssembly.instantiate(this.Wasm, importObject).then((wasm)=>{
             console.log(wasm.instance);
             this.exports = wasm.instance.exports;
-            document.getElementById('data').innerHTML += JSON.stringify(this.exports.barkai(40, 2), null, 4);
+            document.getElementById('data').innerHTML += JSON.stringify(this.exports.barkai(40, 2.2), null, 4);
         });
     }
 

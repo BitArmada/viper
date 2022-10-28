@@ -5,12 +5,6 @@ import WASM from '../WASM.js';
 function func(f){
     var code = [
         0, //  0 locals
-        // 0x41,
-        // 2,
-        // 0x20, // get var
-        // 0x00,
-        // 0x6A, // add
-        // WASM.END
     ];
 
     code.push(...compile(f.body));

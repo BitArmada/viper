@@ -10,8 +10,9 @@ class VariableDefinition extends Statement {
 }
 
 class VariableReference extends Statement {
-    constructor(name, id){
+    constructor(name, id, type){
         super();
+        this.type = type;
         this.name = name;
         this.id = id;
     }
@@ -50,6 +51,12 @@ class Operation extends Statement {
         this.operation = operation;
         this.a = a;
         this.b = b;
+
+        if(this.a[0].type == this.b[0].type){
+            this.type = this.a[0].type;
+        }else{
+            console.warn('type error: cannot add unmatching types');
+        }
     }
 }
 

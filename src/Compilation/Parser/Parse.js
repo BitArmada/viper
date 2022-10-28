@@ -90,16 +90,34 @@ function Parse(tokens, localVars){
                     tree.push(
                         new Statements.Operation('add', left, right)
                     );
+                }else if(tokens[0] == 'sub'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('sub', left, right)
+                    );
                 }else{
-                    const id = locals.indexOf(name);
+                    var type;
+                    const id = locals.findIndex((x) => {
+                        if(x.name === name){
+                            type = x.type;
+                            return true;
+                        }
+                    });
                     if(id == -1){
                         console.log('unknown variable reference: ' + name);
                     }
                     tree.push(
-                        new Statements.VariableReference(name, id)
+                        new Statements.VariableReference(name, id, type)
                     );
                 }
             }
+        }else if(tokens[0] == 'open_round'){
+            tokens.shift();
+            var value = next(tokens, 'close_round');
+            value = Parse(value, locals);
+            tree.push(...value);
         }
 
         tokens = nextBegining(tokens);
@@ -118,10 +136,10 @@ function Parse(tokens, localVars){
                 if(tokens[0] == 'semicolon' || tokens.length == 0){
                     var value = [];
                     const id = locals.length;
-                    locals.push(name);
                     tree.push(
                         new Statements.VariableDefinition(type, name, value, id)
                     )
+                    locals.push(tree[tree.length-1]);
                 }else if(tokens[0] == 'assign'){
                     // variable definition with value
                     tokens.shift();
@@ -129,11 +147,11 @@ function Parse(tokens, localVars){
                     var value = Parse(body);
 
                     const id = locals.length;
-                    locals.push(name);
 
                     tree.push(
                         new Statements.VariableDefinition(type, name, value, id)
                     )
+                    locals.push(tree[tree.length-1]);
                 }else if(tokens[0] == 'open_round'){
                     tokens.shift();
                     // arguments
@@ -144,7 +162,7 @@ function Parse(tokens, localVars){
                         var arg = next(args, 'comma');
                         parsedArgs.push(...Parse(arg));
 
-                        flocals.push(parsedArgs[parsedArgs.length-1].name);
+                        flocals.push(parsedArgs[parsedArgs.length-1]);
 
                         args.shift();
                     }

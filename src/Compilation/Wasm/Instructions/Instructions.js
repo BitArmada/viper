@@ -34,7 +34,14 @@ function Operation(s){
             return [
                 ...compile(s.a),
                 ...compile(s.b),
-                WASM.add
+                WASM[WASM.toWasmType(s.type)+'add']
+            ];
+            break;
+        case 'sub':
+            return [
+                ...compile(s.a),
+                ...compile(s.b),
+                WASM[WASM.toWasmType(s.type)+'sub']
             ];
             break;
     }

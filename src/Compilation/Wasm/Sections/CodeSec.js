@@ -2,11 +2,28 @@ import { FunctionDefinition } from '../../Parser/Statements.js';
 import compile from '../Instructions/Instructions.js';
 import WASM from '../WASM.js';
 
+function getLocals(body){
+    var locals = {};
+    var code = [0];
+
+    for(var i = 0; i < body.length; i++){
+        if(body[i].constructor.name == 'variableDefinition'){
+            locals[WASM.toWasmType(body[i].type)]++;
+        }
+    }
+
+    for(const id in locals){
+        code[0]++;
+        code.push(locals[id])
+        code.push(WASM[id])
+    }
+
+    return code;
+}
+
 function func(f){
     var code = [
-        1, //  0 locals
-        1,
-        0x7f,
+        ...getLocals(f.body)
     ];
 
     code.push(...compile(f.body));

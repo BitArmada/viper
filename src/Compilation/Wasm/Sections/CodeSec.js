@@ -4,7 +4,9 @@ import WASM from '../WASM.js';
 
 function func(f){
     var code = [
-        0, //  0 locals
+        1, //  0 locals
+        1,
+        0x7f,
     ];
 
     code.push(...compile(f.body));

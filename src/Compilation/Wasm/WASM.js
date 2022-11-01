@@ -44,6 +44,7 @@ const WASM = {
 	f64const: 0x44,
 
 	localget: 0x20,
+	localset: 0x21,
 
 	// operations
 	i32add: 0x6A,

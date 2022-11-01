@@ -5,6 +5,7 @@ const Instructions = {
     'Constant': Constant,
     'Operation': Operation,
     'VariableReference': VariableReference,
+    'VariableDefinition': VariableDefinition
 };
 
 function Return(s){
@@ -16,7 +17,7 @@ function Return(s){
 
 function Constant(s){
     return [
-        WASM.i32const,
+        WASM[WASM.toWasmType(s.type)+'const'],
         s.value
     ];
 }
@@ -26,6 +27,14 @@ function VariableReference(s){
         WASM.localget,
         s.id
     ];
+}
+
+function VariableDefinition(s){
+    return [
+        ...Constant(s.body[0]),
+        WASM.localset,
+        s.id
+    ]
 }
 
 function Operation(s){

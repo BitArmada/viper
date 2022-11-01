@@ -1,5 +1,6 @@
 
 
-float barkai(float a, float b) {
+int barkai(int a) {
+    int b = 3;
     return (a - b);
 }

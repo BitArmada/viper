@@ -62,10 +62,18 @@ function Parse(tokens, localVars){
             continue;
         }else if(!TOKENS[tokens[0]]){
             var int = parseInt(tokens[0], 10);
-            if(int){
+            var float = parseFloat(tokens[0]+tokens[1]+tokens[2]);
+            if(int && tokens[1] != '.'){
                 tokens.shift();
                 tree.push(
                     new Statements.Constant('int', int)
+                );
+            }else if(tokens.length >= 3 && float){
+                tokens.shift();
+                tokens.shift();
+                tokens.shift();
+                tree.push(
+                    new Statements.Constant('float', float)
                 );
             }else{
                 // identifier

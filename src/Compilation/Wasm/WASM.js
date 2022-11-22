@@ -68,6 +68,11 @@ const WASM = {
 	memidx: 0x02,
     globalidx: 0x03,
 
+	call: 0x10,
+	call_indirect: 0x11,
+
+	RETURN: 0x0f,
+
 	END: 0xB,
 
 	vector,

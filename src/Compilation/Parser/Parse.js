@@ -14,7 +14,8 @@ const beginers = [
     'kw_string',
     'kw_float',
     'kw_boolean',
-    'kw_return'
+    'kw_return',
+    'kw_if',
     // 'open_round',
     // 'close_round',
     // 'open_curly',
@@ -45,6 +46,26 @@ function nextBegining(tokens){
     }
     return tokens;
 }
+
+function getContents(tokens){
+    var n = 0;
+    var output = [];
+    while(tokens.length > 0){
+        if(tokens[0] == 'open_curly'){
+            n++;
+        }else if(tokens[0] == 'close_curly'){
+            n--;
+        }else{
+            output.push(tokens.shift());
+        }
+        if(n < 0){
+            return output;
+        }
+    }
+
+    return output;
+}
+
 
 function Parse(tokens, localVars){
 
@@ -85,11 +106,14 @@ function Parse(tokens, localVars){
                     var parsedArgs = [];
                     while(args.length > 0){
                         var arg = next(args, 'comma');
+                        parsedArgs.push(
+                            ...Parse(arg, locals)
+                        )
                         args.shift();
                     }
                     tokens.shift();
                     tree.push(
-                        new Statements.FunctionCall(name, args)
+                        new Statements.FunctionCall(name, parsedArgs)
                     );
                 }else if(tokens[0] == 'add'){
                     tokens.shift();
@@ -104,6 +128,13 @@ function Parse(tokens, localVars){
                     var right = Parse([tokens[0]], locals);
                     tree.push(
                         new Statements.Operation('sub', left, right)
+                    );
+                }else if(tokens[0] == 'le'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('le', left, right)
                     );
                 }else{
                     var type;
@@ -176,7 +207,8 @@ function Parse(tokens, localVars){
                     }
                     tokens.shift();
                     tokens.shift();
-                    var t = next(tokens, 'close_curly');
+                    var t = getContents(tokens);
+                    console.log(t);
                     tokens.shift();
                     var body = Parse(t, flocals);
                     console.log(flocals)
@@ -192,6 +224,18 @@ function Parse(tokens, localVars){
             tree.push(
                 new Statements.Return(value)
             );
+        }else if(tokens[0] == 'kw_if'){
+            tokens.shift();
+            tokens.shift();
+            var condition = next(tokens, 'close_round');
+            condition = Parse(condition, locals);
+            tokens.shift();
+            tokens.shift();
+            var body = next(tokens, 'close_curly');
+            body = Parse(body, locals);
+            tree.push(
+                new Statements.If(condition, body)
+            )
         }
     }
 

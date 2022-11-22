@@ -42,6 +42,7 @@ class FunctionCall extends Statement {
         super();
         this.name = name;
         this.args = args;
+        this.id = null;
     }
 }
 
@@ -66,6 +67,13 @@ class Return extends Statement {
     }
 }
 
+class If extends Statement {
+    constructor(condition, body){
+        super(body);
+        this.condition = condition;
+    }
+}
+
 export {
     VariableDefinition,
     FunctionDefinition,
@@ -74,4 +82,5 @@ export {
     Operation,
     VariableReference,
     Return,
+    If,
 };

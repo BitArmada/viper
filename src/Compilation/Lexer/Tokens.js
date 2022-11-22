@@ -31,6 +31,8 @@ const TOKENS = {
 	mod_assign: '%=',
 
 	qoutation: '"',
+	le: '<=',
+	ge: '>=',
 	// and_assign,
 
 	// or_assign,

@@ -5,12 +5,14 @@ const Instructions = {
     'Constant': Constant,
     'Operation': Operation,
     'VariableReference': VariableReference,
-    'VariableDefinition': VariableDefinition
+    'VariableDefinition': VariableDefinition,
+    'FunctionCall': FunctionCall,
 };
 
 function Return(s){
     var bin = [
         ...compile(s.body),
+        WASM.RETURN
     ];
     return bin;
 }
@@ -31,7 +33,7 @@ function VariableReference(s){
 
 function VariableDefinition(s){
     return [
-        ...Constant(s.body[0]),
+        ...compile(s.body),
         WASM.localset,
         s.id
     ]
@@ -54,6 +56,14 @@ function Operation(s){
             ];
             break;
     }
+}
+
+function FunctionCall(s){
+    return [
+        ...compile(s.args),
+        WASM.call,
+        s.id
+    ]
 }
 
 function compile(statements){

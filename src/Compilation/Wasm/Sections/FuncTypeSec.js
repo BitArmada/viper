@@ -1,4 +1,5 @@
 import { FunctionDefinition } from '../../Parser/Statements.js';
+import FunctionType from './FunctionType.js';
 import WASM from '../WASM.js';
 
 function matchType(func, table){
@@ -18,10 +19,10 @@ function matchType(func, table){
     }
 
     // add to table
-    table.push({
-        returnType: func.returnType,
-        arguments: argtypes
-    });
+    table.push(new FunctionType(
+        func.returnType,
+        argtypes
+    ));
 
     return false;
 }

@@ -37,7 +37,7 @@ class Module {
             console.log(wasm.instance);
 
             this.exports = wasm.instance.exports;
-            document.getElementById('data').innerHTML += JSON.stringify(this.exports.fib(9), null, 4);
+            document.getElementById('data').innerHTML += JSON.stringify(this.exports.fib(10), null, 4);
         });
     }
 

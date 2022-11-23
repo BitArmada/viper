@@ -37,6 +37,8 @@ const WASM = {
     f32: 0x7d,
 	f64: 0x7c,
 
+	blocktype: 0x40,
+
 	// constants
 	i32const: 0x41,
 	i64const: 0x42,
@@ -50,6 +52,7 @@ const WASM = {
 	i32add: 0x6A,
 	i32sub: 0x6B,
 	i32mul: 0x6C,
+	i32le_s: 0x4C, // signed less than or equal to
 
 	i64add: 0x7C,
 	i64sub: 0x7D,
@@ -67,6 +70,8 @@ const WASM = {
 	tableidx: 0x01,
 	memidx: 0x02,
     globalidx: 0x03,
+	
+	IF: 0x04,
 
 	call: 0x10,
 	call_indirect: 0x11,

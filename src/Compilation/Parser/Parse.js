@@ -47,7 +47,7 @@ function nextBegining(tokens){
     return tokens;
 }
 
-function getContents(tokens){
+function getBody(tokens){
     var n = 0;
     var output = [];
     while(tokens.length > 0){
@@ -55,12 +55,11 @@ function getContents(tokens){
             n++;
         }else if(tokens[0] == 'close_curly'){
             n--;
-        }else{
-            output.push(tokens.shift());
         }
         if(n < 0){
             return output;
         }
+        output.push(tokens.shift());
     }
 
     return output;
@@ -115,6 +114,7 @@ function Parse(tokens, localVars){
                     tree.push(
                         new Statements.FunctionCall(name, parsedArgs)
                     );
+                    continue;
                 }else if(tokens[0] == 'add'){
                     tokens.shift();
                     var left = Parse([name], locals);
@@ -157,6 +157,14 @@ function Parse(tokens, localVars){
             var value = next(tokens, 'close_round');
             value = Parse(value, locals);
             tree.push(...value);
+        }else if(tokens[0] == 'add'){
+            tokens.shift();
+            let left = [tree.shift()];
+            let right = Parse(next(tokens, 'semicolon'), locals);
+            console.log(left, right)
+            tree.push(
+                new Statements.Operation('add', left, right)
+            )
         }
 
         tokens = nextBegining(tokens);
@@ -207,11 +215,11 @@ function Parse(tokens, localVars){
                     }
                     tokens.shift();
                     tokens.shift();
-                    var t = getContents(tokens);
+                    var t = getBody(tokens);
                     console.log(t);
-                    tokens.shift();
+                    // var t = next(tokens, 'close_curly');
                     var body = Parse(t, flocals);
-                    console.log(flocals)
+                    console.log(body);
                     tree.push(
                         new Statements.FunctionDefinition(type, name, parsedArgs, body)
                     )

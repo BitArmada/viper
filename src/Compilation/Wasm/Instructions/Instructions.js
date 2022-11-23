@@ -7,6 +7,7 @@ const Instructions = {
     'VariableReference': VariableReference,
     'VariableDefinition': VariableDefinition,
     'FunctionCall': FunctionCall,
+    'If': If,
 };
 
 function Return(s){
@@ -55,6 +56,13 @@ function Operation(s){
                 WASM[WASM.toWasmType(s.type)+'sub']
             ];
             break;
+        case 'le':
+            return [
+                ...compile(s.a),
+                ...compile(s.b),
+                WASM[WASM.toWasmType(s.type)+'le_s']
+            ];
+            break;
     }
 }
 
@@ -64,6 +72,23 @@ function FunctionCall(s){
         WASM.call,
         s.id
     ]
+}
+
+function If(s){
+    return [
+        ...compile(s.condition),
+        WASM.IF,
+        WASM.blocktype,
+        ...compile(s.body),
+        // WASM.i32,
+        // WASM.i32const,
+        // 42,
+        // WASM.RETURN,
+        // 0x05,
+        // WASM.i32const,
+        // 42,
+        WASM.END,
+    ];
 }
 
 function compile(statements){

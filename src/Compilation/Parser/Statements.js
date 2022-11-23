@@ -43,6 +43,7 @@ class FunctionCall extends Statement {
         this.name = name;
         this.args = args;
         this.id = null;
+        this.type = null;
     }
 }
 
@@ -52,9 +53,10 @@ class Operation extends Statement {
         this.operation = operation;
         this.a = a;
         this.b = b;
-
+    }
+    get type(){
         if(this.a[0].type == this.b[0].type){
-            this.type = this.a[0].type;
+            return this.a[0].type;
         }else{
             console.warn('type error: cannot add unmatching types');
         }

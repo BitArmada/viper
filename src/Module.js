@@ -29,7 +29,7 @@ class Module {
         const importObject = {
             imports: this.imports,
             env: {
-                memory: new WebAssembly.Memory({ initial: 256 }),
+                memory: new WebAssembly.Memory({ initial: 10 }),
             }
         };
         
@@ -37,7 +37,7 @@ class Module {
             console.log(wasm.instance);
 
             this.exports = wasm.instance.exports;
-            document.getElementById('data').innerHTML += JSON.stringify(this.exports.fib(10), null, 4);
+            document.getElementById('data').innerHTML += JSON.stringify(this.exports.memoryTest(10), null, 4);
         });
     }
 

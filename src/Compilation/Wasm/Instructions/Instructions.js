@@ -8,6 +8,7 @@ const Instructions = {
     'VariableDefinition': VariableDefinition,
     'FunctionCall': FunctionCall,
     'If': If,
+    'WasmSection': WasmSection,
 };
 
 function Return(s){
@@ -89,6 +90,16 @@ function If(s){
         // 42,
         WASM.END,
     ];
+}
+
+function WasmSection(s){
+    return s.instructions.map((i)=>{
+        if(i in WASM){
+            return WASM[i];
+        }else{
+            return parseInt(i, 16);
+        }
+    })
 }
 
 function compile(statements){

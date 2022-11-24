@@ -1,5 +1,8 @@
 
 const TOKENS = {
+	wasm_start: 'WASM_START',
+	wasm_end: 'WASM_END',
+
 	inc: '++',
 	dec: '--',
 

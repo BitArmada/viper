@@ -16,6 +16,7 @@ const beginers = [
     'kw_boolean',
     'kw_return',
     'kw_if',
+    'wasm_start',
     // 'open_round',
     // 'close_round',
     // 'open_curly',
@@ -161,7 +162,6 @@ function Parse(tokens, localVars){
             tokens.shift();
             let left = [tree.shift()];
             let right = Parse(next(tokens, 'semicolon'), locals);
-            console.log(left, right)
             tree.push(
                 new Statements.Operation('add', left, right)
             )
@@ -216,10 +216,8 @@ function Parse(tokens, localVars){
                     tokens.shift();
                     tokens.shift();
                     var t = getBody(tokens);
-                    console.log(t);
                     // var t = next(tokens, 'close_curly');
                     var body = Parse(t, flocals);
-                    console.log(body);
                     tree.push(
                         new Statements.FunctionDefinition(type, name, parsedArgs, body)
                     )
@@ -244,6 +242,23 @@ function Parse(tokens, localVars){
             tree.push(
                 new Statements.If(condition, body)
             )
+        }else if(tokens[0] == 'wasm_start'){
+            tokens.shift();
+            let contents = next(tokens, 'wasm_end');
+            let instructions = [];
+            let current = '';
+            for(var i = 0; i < contents.length; i++){
+                if(contents[i] == 'semicolon'){
+                    instructions.push(current);
+                    current = '';
+                }else{
+                    current += contents[i];
+                }
+            }
+            tree.push(
+                new Statements.WasmSection(instructions)
+            )
+            tokens.shift();
         }
     }
 

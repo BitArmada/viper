@@ -7,3 +7,13 @@ int fib(int n)
     }
     return fib(n - 1) + fib(n - 2);
 }
+
+int memoryTest(){
+    WASM_START
+    i32const;
+    0;
+    i32load;
+    0x2;
+    RETURN;
+    WASM_END
+}

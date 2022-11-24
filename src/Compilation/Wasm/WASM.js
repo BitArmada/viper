@@ -29,6 +29,9 @@ const WASM = {
 
 	FUNCTYPE: 0x60,
 
+	memtype: 0x02,
+	blocktype: 0x40,
+
 	LOCALS: 0x01,
 
 	// number types
@@ -37,7 +40,6 @@ const WASM = {
     f32: 0x7d,
 	f64: 0x7c,
 
-	blocktype: 0x40,
 
 	// constants
 	i32const: 0x41,
@@ -70,6 +72,13 @@ const WASM = {
 	tableidx: 0x01,
 	memidx: 0x02,
     globalidx: 0x03,
+
+	// memory intructions
+	i32load: 0x28,
+	i64load: 0x29,
+	f32load: 0x2A,
+	f64load: 0x2B,
+	memorysize: 0x3F,
 	
 	IF: 0x04,
 

@@ -76,6 +76,13 @@ class If extends Statement {
     }
 }
 
+class WasmSection extends Statement {
+    constructor(instructions){
+        super();
+        this.instructions = instructions;
+    }
+}
+
 export {
     VariableDefinition,
     FunctionDefinition,
@@ -85,4 +92,5 @@ export {
     VariableReference,
     Return,
     If,
+    WasmSection,
 };

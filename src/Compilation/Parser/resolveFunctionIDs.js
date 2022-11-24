@@ -1,9 +1,15 @@
 
-function getFunctionIDs(AST, scope){
+function getFunctionIDs(AST, scope, namespace){
     for(var i = 0; i < AST.length; i++){
         if(AST[i].constructor.name == "FunctionDefinition"){
+            if(namespace){
+                AST[i].name = namespace+'_'+AST[i].name;
+            }
             scope[AST[i].name] = AST[i];
             getFunctionIDs(AST[i].body, scope)
+        }else if(AST[i].constructor.name == "Class"){
+            // scope[AST[i].name] = {};
+            getFunctionIDs(AST[i].body, scope, AST[i].name)
         }
     }
 }

@@ -35,32 +35,37 @@ function FuncTypesec(AST){
     var typesec = [];
     var funcsec = [];
     var table = [];
-    for(var i = 0; i < AST.length; i++){
-        if(AST[i].constructor == FunctionDefinition){
-            // match the function type to the table
-            var index = matchType(AST[i], table);
-
-            if(!index){
-                // create type for function
-
-                var args = AST[i].args.map((arg)=>{
-                    return typeToWasm(arg.type);
-                });
-
-                var returnType = typeToWasm(AST[i].returnType);
-
-                typesec.push(
-                    0x60, // function
-                    ...WASM.vector(args), // args
-                    ...WASM.vector([returnType]), // return
-                );
-
-                funcsec.push(table.length-1);
-            }else{
-                funcsec.push(index);
+    
+    function iterate(AST){
+        for(var i = 0; i < AST.length; i++){
+            if(AST[i].constructor == FunctionDefinition){
+                // match the function type to the table
+                var index = matchType(AST[i], table);
+    
+                if(!index){
+                    // create type for function
+                    var args = AST[i].args.map((arg)=>{
+                        return typeToWasm(arg.type);
+                    });
+    
+                    var returnType = typeToWasm(AST[i].returnType);
+    
+                    typesec.push(
+                        0x60, // function
+                        ...WASM.vector(args), // args
+                        ...WASM.vector([returnType]), // return
+                    );
+    
+                    funcsec.push(table.length-1);
+                }else{
+                    funcsec.push(index);
+                }
             }
+            iterate(AST[i].body);
         }
     }
+
+    iterate(AST);
 
     typesec = [
         WASM.TYPESEC, // type section

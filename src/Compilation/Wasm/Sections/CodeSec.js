@@ -42,12 +42,17 @@ function CodeSec(AST){
 
     var count = 0;
 
-    for(var i = 0; i < AST.length; i++){
-        if(AST[i].constructor == FunctionDefinition){
-            code.push(...WASM.vector(func(AST[i])))
-            count++;
+    function iterate(AST){
+        for(var i = 0; i < AST.length; i++){
+            if(AST[i].constructor == FunctionDefinition){
+                code.push(...WASM.vector(func(AST[i])))
+                count++;
+            }
+            iterate(AST[i].body)
         }
     }
+
+    iterate(AST)
 
     code = [
         WASM.CODESEC,

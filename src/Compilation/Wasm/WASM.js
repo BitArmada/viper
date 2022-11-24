@@ -54,7 +54,15 @@ const WASM = {
 	i32add: 0x6A,
 	i32sub: 0x6B,
 	i32mul: 0x6C,
+	i32eq: 0x46,
+	i32lt_s: 0x48, // signed less than
+	i32lt_u: 0x49, // unsigned less than
+	i32gt_s: 0x4A, // signed greater than
+	i32gt_u: 0x4B, // unsigned greater than
 	i32le_s: 0x4C, // signed less than or equal to
+	i32le_u: 0x4D, // unsigned less than or equal to
+	i32ge_s: 0x4E, // signed greater than or equal to
+	i32ge_u: 0x4F, // unsigned greater than or equal to
 
 	i64add: 0x7C,
 	i64sub: 0x7D,
@@ -80,7 +88,12 @@ const WASM = {
 	f64load: 0x2B,
 	memorysize: 0x3F,
 	
+	block: 0x02,
+	loop: 0x03,
 	IF: 0x04,
+
+	br: 0x0C,
+	br_if: 0x0d,
 
 	call: 0x10,
 	call_indirect: 0x11,

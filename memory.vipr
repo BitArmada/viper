@@ -1,0 +1,20 @@
+
+
+class MemoryManager {
+    int availableMem(){
+        WASM_START
+        i32const;
+        0;
+        i32load;
+        0x2;
+        RETURN;
+        WASM_END
+    }
+    int newObject(int size){
+        return 0;
+    }
+}
+
+int memoryTest(){
+    MemoryManager.availableMem();
+}

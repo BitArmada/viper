@@ -34,6 +34,8 @@ const TOKENS = {
 	mod_assign: '%=',
 
 	qoutation: '"',
+	lt: '<',
+	gt: '>',
 	le: '<=',
 	ge: '>=',
 	// and_assign,
@@ -82,6 +84,8 @@ const TOKENS = {
 	kw_break: 'break',
 	kw_continue: 'continue',
 	kw_return: 'return',
+
+	kw_class: 'class',
 
 	kw_export: 'export',
 

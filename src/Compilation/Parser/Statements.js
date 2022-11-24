@@ -1,7 +1,7 @@
 import Statement from "./Statement.js";
 
 class VariableDefinition extends Statement {
-    constructor(type, name, body, id){
+    constructor(type, name, body, id) {
         super(body);
         this.type = type ?? "int"; // default type;
         this.name = name;
@@ -10,7 +10,7 @@ class VariableDefinition extends Statement {
 }
 
 class VariableReference extends Statement {
-    constructor(name, id, type){
+    constructor(name, id, type) {
         super();
         this.type = type;
         this.name = name;
@@ -18,8 +18,15 @@ class VariableReference extends Statement {
     }
 }
 
+class VariableAssignment extends Statement {
+    constructor(variable, body) {
+        super(body);
+        this.variable = variable;
+    }
+}
+
 class Constant extends Statement {
-    constructor(type, value){
+    constructor(type, value) {
         super();
         this.type = type ?? "int"; // default type;
         this.value = value ?? 0;
@@ -28,7 +35,7 @@ class Constant extends Statement {
 
 class FunctionDefinition extends Statement {
     static count = 0;
-    constructor(type, name, args, body){
+    constructor(type, name, args, body) {
         super(body);
         this.returnType = type ?? "void"; // default type;
         this.name = name;
@@ -38,7 +45,7 @@ class FunctionDefinition extends Statement {
 }
 
 class FunctionCall extends Statement {
-    constructor(name, args){
+    constructor(name, args) {
         super();
         this.name = name;
         this.args = args;
@@ -48,36 +55,50 @@ class FunctionCall extends Statement {
 }
 
 class Operation extends Statement {
-    constructor(operation, a, b){
+    constructor(operation, a, b) {
         super();
         this.operation = operation;
         this.a = a;
         this.b = b;
     }
-    get type(){
-        if(this.a[0].type == this.b[0].type){
+    get type() {
+        if (this.a[0].type == this.b[0].type) {
             return this.a[0].type;
-        }else{
+        } else {
             console.warn('type error: cannot add unmatching types');
         }
     }
 }
 
 class Return extends Statement {
-    constructor(body){
+    constructor(body) {
         super(body);
     }
 }
 
 class If extends Statement {
-    constructor(condition, body){
+    constructor(condition, body) {
         super(body);
         this.condition = condition;
     }
 }
 
+class While extends Statement {
+    constructor(condition, body) {
+        super(body);
+        this.condition = condition;
+    }
+}
+
+class Class extends Statement {
+    constructor(body, name) {
+        super(body);
+        this.name = name;
+    }
+}
+
 class WasmSection extends Statement {
-    constructor(instructions){
+    constructor(instructions) {
         super();
         this.instructions = instructions;
     }
@@ -90,7 +111,10 @@ export {
     Constant,
     Operation,
     VariableReference,
+    VariableAssignment,
     Return,
     If,
+    While,
+    Class,
     WasmSection,
 };

@@ -16,6 +16,8 @@ const beginers = [
     'kw_boolean',
     'kw_return',
     'kw_if',
+    'kw_class',
+    'kw_while',
     'wasm_start',
     // 'open_round',
     // 'close_round',
@@ -84,7 +86,7 @@ function Parse(tokens, localVars){
         }else if(!TOKENS[tokens[0]]){
             var int = parseInt(tokens[0], 10);
             var float = parseFloat(tokens[0]+tokens[1]+tokens[2]);
-            if(int && tokens[1] != '.'){
+            if((int && tokens[1] != '.') || tokens[0] == 0){
                 tokens.shift();
                 tree.push(
                     new Statements.Constant('int', int)
@@ -99,6 +101,13 @@ function Parse(tokens, localVars){
             }else{
                 // identifier
                 var name = tokens.shift();
+                let namespace = [name];
+                while(tokens.length > 0 && tokens[0] == '.'){
+                    tokens.shift();
+                    namespace.push(tokens[0]);
+                }
+                // tokens.shift();
+                name = namespace.join('_');
 
                 if(tokens[0] == 'open_round'){
                     // arguments
@@ -116,6 +125,34 @@ function Parse(tokens, localVars){
                         new Statements.FunctionCall(name, parsedArgs)
                     );
                     continue;
+                }else if(tokens[0] == 'assign'){
+                    tokens.shift();
+                    let body = next(tokens, 'semicolon');
+                    tokens.shift();
+                    body = Parse(body, locals);
+                    let variable = Parse([name], locals)[0];
+                    tree.push(
+                        new Statements.VariableAssignment(variable, body)
+                    )
+                }else if(tokens[0] == 'add_assign'){
+                    tokens.shift();
+                    let body = next(tokens, 'semicolon');
+                    tokens.shift();
+                    body = Parse(body, locals);
+                    let variable = Parse([name], locals)[0];
+
+                    body = [
+                        new Statements.Operation(
+                            'add', 
+                            [variable],
+                            body
+                        )
+                    ];
+                    tree.push(
+                        new Statements.VariableAssignment(variable, body)
+                    )
+
+                    continue;
                 }else if(tokens[0] == 'add'){
                     tokens.shift();
                     var left = Parse([name], locals);
@@ -130,12 +167,33 @@ function Parse(tokens, localVars){
                     tree.push(
                         new Statements.Operation('sub', left, right)
                     );
+                }else if(tokens[0] == 'lt'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('lt', left, right)
+                    );
+                }else if(tokens[0] == 'gt'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('gt', left, right)
+                    );
                 }else if(tokens[0] == 'le'){
                     tokens.shift();
                     var left = Parse([name], locals);
                     var right = Parse([tokens[0]], locals);
                     tree.push(
                         new Statements.Operation('le', left, right)
+                    );
+                }else if(tokens[0] == 'ge'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('ge', left, right)
                     );
                 }else{
                     var type;
@@ -191,6 +249,7 @@ function Parse(tokens, localVars){
                     // variable definition with value
                     tokens.shift();
                     var body = next(tokens, 'semicolon');
+                    tokens.shift();
                     var value = Parse(body);
 
                     const id = locals.length;
@@ -223,6 +282,28 @@ function Parse(tokens, localVars){
                     )
                 }
             }
+        }else if(tokens[0] == 'kw_while'){
+            tokens.shift();
+            tokens.shift();
+            let condition = next(tokens, 'close_round');
+            condition = Parse(condition, locals)
+            tokens.shift();
+            tokens.shift();
+            let body = getBody(tokens);
+            tokens.shift();
+            body = Parse(body, locals);
+            tree.push(
+                new Statements.While(condition, body)
+            );
+        }else if(tokens[0] == 'kw_class'){
+            tokens.shift();
+            let name = tokens.shift();
+            tokens.shift();
+            let body = getBody(tokens);
+            body = Parse(body, locals);
+            tree.push(
+                new Statements.Class(body, name)
+            );
         }else if(tokens[0] == 'kw_return'){
             tokens.shift();
             var value = next(tokens, 'semicolon');

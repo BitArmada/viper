@@ -1,4 +1,5 @@
 
+import void console.log(int);
 
 class MemoryManager {
     int availableMem(){
@@ -15,6 +16,6 @@ class MemoryManager {
     }
 }
 
-int memoryTest(){
+int test(){
     MemoryManager.availableMem();
 }

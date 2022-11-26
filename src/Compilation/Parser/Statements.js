@@ -89,6 +89,14 @@ class While extends Statement {
         this.condition = condition;
     }
 }
+class For extends Statement {
+    constructor(initialization, condition, iteration, body) {
+        super(body);
+        this.initialization = initialization;
+        this.condition = condition;
+        this.iteration = iteration;
+    }
+}
 
 class Class extends Statement {
     constructor(body, name) {
@@ -115,6 +123,7 @@ export {
     Return,
     If,
     While,
+    For,
     Class,
     WasmSection,
 };

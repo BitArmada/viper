@@ -18,6 +18,7 @@ const beginers = [
     'kw_if',
     'kw_class',
     'kw_while',
+    'kw_for',
     'wasm_start',
     // 'open_round',
     // 'close_round',
@@ -104,7 +105,7 @@ function Parse(tokens, localVars){
                 let namespace = [name];
                 while(tokens.length > 0 && tokens[0] == '.'){
                     tokens.shift();
-                    namespace.push(tokens[0]);
+                    namespace.push(tokens.shift());
                 }
                 // tokens.shift();
                 name = namespace.join('_');
@@ -294,6 +295,25 @@ function Parse(tokens, localVars){
             body = Parse(body, locals);
             tree.push(
                 new Statements.While(condition, body)
+            );
+        }else if(tokens[0] == 'kw_for'){
+            tokens.shift();
+            tokens.shift();
+            let initialization = next(tokens, 'semicolon');
+            initialization = Parse(initialization, locals)
+            tokens.shift();
+            let condition = next(tokens, 'semicolon');
+            condition = Parse(condition, locals)
+            tokens.shift();
+            let iteration = next(tokens, 'close_round');
+            iteration = Parse(iteration, locals);
+            tokens.shift();
+            tokens.shift();
+            let body = getBody(tokens);
+            body = Parse(body, locals);
+            tokens.shift();
+            tree.push(
+                new Statements.For(initialization, condition, iteration, body)
             );
         }else if(tokens[0] == 'kw_class'){
             tokens.shift();

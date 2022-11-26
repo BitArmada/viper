@@ -6,15 +6,22 @@ function getLocals(body){
     var locals = {};
     var code = [0];
 
-    for(var i = 0; i < body.length; i++){
-        if(body[i].constructor.name == 'VariableDefinition'){
-            const type = WASM.toWasmType(body[i].type);
-            if(locals[type] == undefined){
-                locals[type] = 0;
+    function iterate(body){
+        if(!body) return;
+        for(var i = 0; i < body.length; i++){
+            if(body[i].constructor.name == 'VariableDefinition'){
+                const type = WASM.toWasmType(body[i].type);
+                if(locals[type] == undefined){
+                    locals[type] = 0;
+                }
+                locals[type]++;
             }
-            locals[type]++;
+            iterate(body[i].body);
+            iterate(body[i].initialization);
         }
     }
+
+    iterate(body);
 
     for(const id in locals){
         code[0]++;

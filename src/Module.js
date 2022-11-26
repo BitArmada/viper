@@ -3,11 +3,15 @@ import Parse from './Compilation/Parser/Parse.js';
 import resolveFunctionIDs from './Compilation/Parser/resolveFunctionIDs.js';
 import Compile from './Compilation/Wasm/Compile.js';
 
+const defaultImports = {
+    console
+};
+
 class Module {
     constructor(text){
         this.text = text;
         this.exports;
-        this.imports;
+        this.imports = defaultImports;
     }
 
     compile(){
@@ -23,21 +27,23 @@ class Module {
         this.run();
     }
 
-    expose(func, type){}
+    expose(func){
+        this.imports[obj.name] = obj;
+    }
 
     run(){
-        const importObject = {
+        this.importObject = {
             imports: this.imports,
             env: {
                 memory: new WebAssembly.Memory({ initial: 10 }),
             }
         };
         
-        WebAssembly.instantiate(this.Wasm, importObject).then((wasm)=>{
+        WebAssembly.instantiate(this.Wasm, this.importObject).then((wasm)=>{
             console.log(wasm.instance);
 
             this.exports = wasm.instance.exports;
-            document.getElementById('data').innerHTML += JSON.stringify(this.exports.WhileTest(10), null, 4);
+            document.getElementById('data').innerHTML += JSON.stringify(this.exports.test(10), null, 4);
         });
     }
 

@@ -10,6 +10,7 @@ const Instructions = {
     'FunctionCall': FunctionCall,
     'If': If,
     'While': While,
+    'For': For,
     'Class': Class,
     'WasmSection': WasmSection,
 };
@@ -125,7 +126,6 @@ function If(s){
 }
 
 function While(s){
-    console.log(s.condition)
     return [
         WASM.block, WASM.blocktype,
             WASM.loop, WASM.blocktype,
@@ -137,6 +137,25 @@ function While(s){
             WASM.END,
         WASM.END
     ];
+}
+
+function For(s){
+    var out =  [
+        WASM.block, WASM.blocktype,
+            ...compile(s.initialization),
+            WASM.loop, WASM.blocktype,
+                ...compile(s.condition),
+                WASM.i32const, 0, WASM.i32eq, // not condition
+                WASM.br_if, 0x01,
+                ...compile(s.iteration),
+                ...compile(s.body),
+                WASM.br,
+                0x00,
+            WASM.END,
+        WASM.END
+    ];
+    console.log(out)
+    return out;
 }
 
 function Class(s){

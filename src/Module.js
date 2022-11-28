@@ -32,14 +32,11 @@ class Module {
     }
 
     run(){
-        this.importObject = {
-            imports: this.imports,
-            env: {
-                memory: new WebAssembly.Memory({ initial: 10 }),
-            }
-        };
+        this.imports.env = {
+            memory: new WebAssembly.Memory({ initial: 10 }),
+        }
         
-        WebAssembly.instantiate(this.Wasm, this.importObject).then((wasm)=>{
+        WebAssembly.instantiate(this.Wasm, this.imports).then((wasm)=>{
             console.log(wasm.instance);
 
             this.exports = wasm.instance.exports;

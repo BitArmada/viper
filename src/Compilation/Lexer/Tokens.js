@@ -12,7 +12,7 @@ const TOKENS = {
 
 	// concat,
 	mul: '*',
-	divide: '/',
+	div: '/',
 	// idiv,
 	mod: '%',
 
@@ -87,7 +87,7 @@ const TOKENS = {
 
 	kw_class: 'class',
 
-	kw_export: 'export',
+	kw_import: 'import',
 
 	kw_void: 'void',
 	kw_int: 'int',

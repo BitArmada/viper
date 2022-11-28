@@ -1,4 +1,4 @@
-
+import void console.log(int);
 
 int fib(int n)
 {
@@ -16,4 +16,10 @@ int memoryTest(){
     0x2;
     RETURN;
     WASM_END
+}
+
+void test(){
+    for(int i = 0; i < 10; i+=1){
+        console.log(fib(i));
+    }
 }

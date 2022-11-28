@@ -2,6 +2,7 @@ import * as Statements from './Statements.js';
 import TOKENS from '../Lexer/Tokens.js';
 
 const defaultTypes = {
+    'kw_void': 'void',
     'kw_int': 'int',
     'kw_float': 'float',
     'kw_string': 'string',
@@ -10,6 +11,7 @@ const defaultTypes = {
 
 const beginers = [
     //vars
+    'kw_void',
     'kw_int',
     'kw_string',
     'kw_float',
@@ -19,6 +21,8 @@ const beginers = [
     'kw_class',
     'kw_while',
     'kw_for',
+    'kw_break',
+    'kw_import',
     'wasm_start',
     // 'open_round',
     // 'close_round',
@@ -51,6 +55,17 @@ function nextBegining(tokens){
     return tokens;
 }
 
+function getIdentifier(tokens){
+    var name = tokens.shift();
+    let namespace = [name];
+    while(tokens.length > 0 && tokens[0] == '.'){
+        tokens.shift();
+        namespace.push(tokens.shift());
+    }
+    // tokens.shift();
+    return namespace.join('_');
+}
+
 function getBody(tokens){
     var n = 0;
     var output = [];
@@ -58,6 +73,24 @@ function getBody(tokens){
         if(tokens[0] == 'open_curly'){
             n++;
         }else if(tokens[0] == 'close_curly'){
+            n--;
+        }
+        if(n < 0){
+            return output;
+        }
+        output.push(tokens.shift());
+    }
+
+    return output;
+}
+
+function getBodyRound(tokens){
+    var n = 0;
+    var output = [];
+    while(tokens.length > 0){
+        if(tokens[0] == 'open_round'){
+            n++;
+        }else if(tokens[0] == 'close_round'){
             n--;
         }
         if(n < 0){
@@ -81,7 +114,7 @@ function Parse(tokens, localVars){
 
     while(tokens.length > 0){
 
-        if(tokens[0] == undefined){
+        if(tokens[0] == undefined || tokens[0] == 'semicolon'){
             tokens.shift();
             continue;
         }else if(!TOKENS[tokens[0]]){
@@ -101,18 +134,12 @@ function Parse(tokens, localVars){
                 );
             }else{
                 // identifier
-                var name = tokens.shift();
-                let namespace = [name];
-                while(tokens.length > 0 && tokens[0] == '.'){
-                    tokens.shift();
-                    namespace.push(tokens.shift());
-                }
-                // tokens.shift();
-                name = namespace.join('_');
+                let name = getIdentifier(tokens);
 
                 if(tokens[0] == 'open_round'){
+                    tokens.shift();
                     // arguments
-                    var args = next(tokens, 'close_round');
+                    var args = getBodyRound(tokens);
                     var parsedArgs = [];
                     while(args.length > 0){
                         var arg = next(args, 'comma');
@@ -121,7 +148,9 @@ function Parse(tokens, localVars){
                         )
                         args.shift();
                     }
+                    
                     tokens.shift();
+                    
                     tree.push(
                         new Statements.FunctionCall(name, parsedArgs)
                     );
@@ -134,7 +163,8 @@ function Parse(tokens, localVars){
                     let variable = Parse([name], locals)[0];
                     tree.push(
                         new Statements.VariableAssignment(variable, body)
-                    )
+                    );
+                    continue;
                 }else if(tokens[0] == 'add_assign'){
                     tokens.shift();
                     let body = next(tokens, 'semicolon');
@@ -167,6 +197,20 @@ function Parse(tokens, localVars){
                     var right = Parse([tokens[0]], locals);
                     tree.push(
                         new Statements.Operation('sub', left, right)
+                    );
+                }else if(tokens[0] == 'mul'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('mul', left, right)
+                    );
+                }else if(tokens[0] == 'div'){
+                    tokens.shift();
+                    var left = Parse([name], locals);
+                    var right = Parse([tokens[0]], locals);
+                    tree.push(
+                        new Statements.Operation('div', left, right)
                     );
                 }else if(tokens[0] == 'lt'){
                     tokens.shift();
@@ -251,7 +295,7 @@ function Parse(tokens, localVars){
                     tokens.shift();
                     var body = next(tokens, 'semicolon');
                     tokens.shift();
-                    var value = Parse(body);
+                    var value = Parse(body, locals);
 
                     const id = locals.length;
 
@@ -343,6 +387,24 @@ function Parse(tokens, localVars){
             tree.push(
                 new Statements.If(condition, body)
             )
+        }else if(tokens[0] == 'kw_import'){
+            tokens.shift();
+            let type = defaultTypes[tokens.shift()];
+            let name = getIdentifier(tokens);
+            tokens.shift();
+            let argTokens = next(tokens, 'close_round');
+            tokens.shift();
+            let args = [];
+            while(argTokens.length > 0){
+                if(args[0] !== 'comma'){
+                    args.push(defaultTypes[argTokens.shift()]);
+                }else{
+                    argTokens.shift()
+                }
+            }
+            tree.push(
+                new Statements.Import(type, name, args)
+            )
         }else if(tokens[0] == 'wasm_start'){
             tokens.shift();
             let contents = next(tokens, 'wasm_end');
@@ -360,6 +422,11 @@ function Parse(tokens, localVars){
                 new Statements.WasmSection(instructions)
             )
             tokens.shift();
+        }else if(tokens[0] == 'kw_break'){
+            tokens.shift();
+            tree.push(
+                new Statements.Break()
+            )
         }
     }
 

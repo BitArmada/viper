@@ -12,6 +12,7 @@ const Instructions = {
     'While': While,
     'For': For,
     'Class': Class,
+    'Break': Break,
     'WasmSection': WasmSection,
 };
 
@@ -26,7 +27,7 @@ function Return(s){
 function Constant(s){
     return [
         WASM[WASM.toWasmType(s.type)+'const'],
-        s.value
+        ...(s.type == 'int') ? (WASM.Leb128(s.value)) : ([s.value])
     ];
 }
 
@@ -69,6 +70,20 @@ function Operation(s){
                 WASM[WASM.toWasmType(s.type)+'sub']
             ];
             break;
+        case 'mul':
+            return [
+                ...compile(s.a),
+                ...compile(s.b),
+                WASM[WASM.toWasmType(s.type)+'mul']
+            ];
+            break;
+        case 'div':
+            return [
+                ...compile(s.a),
+                ...compile(s.b),
+                WASM[WASM.toWasmType(s.type)+'div']
+            ];
+            break;
         case 'lt':
             return [
                 ...compile(s.a),
@@ -109,11 +124,15 @@ function FunctionCall(s){
 }
 
 function If(s){
+    let cond = compile(s.condition);
+    labels++;
+    let body = compile(s.body);
+    labels--;
     return [
-        ...compile(s.condition),
+        ...cond,
         WASM.IF,
         WASM.blocktype,
-        ...compile(s.body),
+        ...body,
         // WASM.i32,
         // WASM.i32const,
         // 42,
@@ -126,13 +145,17 @@ function If(s){
 }
 
 function While(s){
+    labels += 2;
+    let condition = compile(s.condition)
+    let body = compile(s.body);
+    labels -= 2;
     return [
         WASM.block, WASM.blocktype,
             WASM.loop, WASM.blocktype,
-                ...compile(s.condition),
+                ...condition,
                 WASM.i32const, 0, WASM.i32eq, // not condition
                 WASM.br_if, 0x01,
-                ...compile(s.body),
+                ...body,
                 WASM.br, 0x00,
             WASM.END,
         WASM.END
@@ -140,21 +163,33 @@ function While(s){
 }
 
 function For(s){
+    labels++;
+    let init = compile(s.initialization);
+    labels++;
     var out =  [
         WASM.block, WASM.blocktype,
-            ...compile(s.initialization),
+            ...init,
             WASM.loop, WASM.blocktype,
                 ...compile(s.condition),
                 WASM.i32const, 0, WASM.i32eq, // not condition
                 WASM.br_if, 0x01,
-                ...compile(s.iteration),
                 ...compile(s.body),
+                ...compile(s.iteration),
                 WASM.br,
                 0x00,
             WASM.END,
         WASM.END
     ];
-    console.log(out)
+    labels-=2;
+    return out;
+}
+
+function Break(s){
+    console.log(labels)
+    let out = [
+        WASM.br, labels-1
+    ];
+    labels = 0;
     return out;
 }
 
@@ -171,6 +206,8 @@ function WasmSection(s){
         }
     })
 }
+
+var labels = 0;
 
 function compile(statements){
     var code = [];

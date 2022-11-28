@@ -1,21 +1,68 @@
-
 import void console.log(int);
 
 class MemoryManager {
-    int availableMem(){
+    
+    int size(){
         WASM_START
-        i32const;
-        0;
-        i32load;
-        0x2;
+        memorysize;
+        0x00;
         RETURN;
         WASM_END
     }
-    int newObject(int size){
-        return 0;
+
+    int get(int adress){
+        WASM_START
+        localget;
+        0x00;
+        i32load;
+        0x02;
+        0x00;
+        RETURN;
+        WASM_END
+    }
+
+    void set(int adress, int value){
+        WASM_START
+        localget;
+        0x00;
+        localget;
+        0x01;
+        i32store;
+        0x02;
+        0x00;
+        RETURN;
+        WASM_END
+    }
+
+    void printMemory(){
+        for(int i = 0; i < 100; i+=1){
+            console.log(MemoryManager.get(i*4));
+        }
+    }
+    int malloc(int size){
+        int block = 0;
+        int free = 0;
+        int blockSize = MemoryManager.get(block);
+        while(blockSize > 0){
+            if(blockSize > size){
+                MemoryManager.set(block, size+8);
+                MemoryManager.set(block+4, 1);
+                break;
+            }
+            block += blockSize + 4;
+            blockSize = MemoryManager.get(block);
+            console.log(block);
+        }
+        if(size > blockSize){
+            MemoryManager.set(block, size+8);
+            MemoryManager.set(block+4, 1);
+        }
+        return block+8;
     }
 }
 
-int test(){
-    MemoryManager.availableMem();
+void test(){
+    int i = MemoryManager.malloc(8);
+    int b = MemoryManager.malloc(4);
+    MemoryManager.printMemory();
 }

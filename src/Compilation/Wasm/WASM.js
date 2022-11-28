@@ -1,6 +1,6 @@
 function vector(array){
 	return [
-		array.length,
+		...Leb128(array.length),
 		...array
 	];
 }
@@ -15,6 +15,23 @@ function toWasmType(type){
 			break;
 	}
 }
+
+function Leb128(value) {
+	value |= 0;
+	const result = [];
+	while (true) {
+		const byte_ = value & 0x7f;
+		value >>= 7;
+		if (
+			(value === 0 && (byte_ & 0x40) === 0) ||
+			(value === -1 && (byte_ & 0x40) !== 0)
+		) {
+			result.push(byte_);
+			return result;
+		}
+		result.push(byte_ | 0x80);
+	}
+};
 
 const WASM = {
 	versionStatement: [
@@ -54,6 +71,8 @@ const WASM = {
 	i32add: 0x6A,
 	i32sub: 0x6B,
 	i32mul: 0x6C,
+	i32div: 0x6D,
+	i32div_s: 0x6D,
 	i32eq: 0x46,
 	i32lt_s: 0x48, // signed less than
 	i32lt_u: 0x49, // unsigned less than
@@ -67,14 +86,18 @@ const WASM = {
 	i64add: 0x7C,
 	i64sub: 0x7D,
 	i64mul: 0x7E,
+	i64div: 0x7F,
+	i64div_s: 0x7F,
 
 	f32add: 0x92,
 	f32sub: 0x93,
 	f32mul: 0x94,
+	f32div: 0x95,
 
 	f64add: 0xA0,
 	f64sub: 0xA1,
 	f64mul: 0xA2,
+	f64div: 0xA3,
 
 	funcidx: 0x00,
 	tableidx: 0x01,
@@ -86,6 +109,12 @@ const WASM = {
 	i64load: 0x29,
 	f32load: 0x2A,
 	f64load: 0x2B,
+
+	i32store: 0x36,
+	i64store: 0x37,
+	f32store: 0x38,
+	f64store: 0x39,
+
 	memorysize: 0x3F,
 	
 	block: 0x02,
@@ -104,6 +133,7 @@ const WASM = {
 
 	vector,
 	toWasmType,
+	Leb128
 };
 
 export default WASM;

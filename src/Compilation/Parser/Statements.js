@@ -89,6 +89,13 @@ class While extends Statement {
         this.condition = condition;
     }
 }
+
+class Break extends Statement {
+    constructor(body) {
+        super(body);
+    }
+}
+
 class For extends Statement {
     constructor(initialization, condition, iteration, body) {
         super(body);
@@ -102,6 +109,16 @@ class Class extends Statement {
     constructor(body, name) {
         super(body);
         this.name = name;
+    }
+}
+
+class Import extends Statement {
+    constructor(type, name, args) {
+        super();
+        this.type = type ?? 'void';
+        this.name = name;
+        this.args = args;
+        this.id = FunctionDefinition.count++;
     }
 }
 
@@ -123,7 +140,9 @@ export {
     Return,
     If,
     While,
+    Break,
     For,
+    Import,
     Class,
     WasmSection,
 };

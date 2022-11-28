@@ -5,22 +5,37 @@ import WASM from '../WASM.js';
 function matchType(func, table){
     // get argument types
     var argtypes = [];
-    for(var j = 0; j < func.args.length; j++){
-        argtypes.push(func.args[j].type);
+    if(func.constructor.name == 'Import'){
+        argtypes = func.args;
+    }else{
+        for(var j = 0; j < func.args.length; j++){
+            argtypes.push(func.args[j].type);
+        }
     }
 
-    for(var i = 0; i < table.length; i++){
-        if(
-            table[i].returnType == func.returnType && 
-            JSON.stringify(argtypes) == JSON.stringify(table[i].arguments)
-        ){
-            return i;
+    if(func.constructor.name == 'Import'){
+        for(var i = 0; i < table.length; i++){
+            if(
+                table[i].type == func.type && 
+                JSON.stringify(argtypes) == JSON.stringify(table[i].arguments)
+            ){
+                return i;
+            }
+        }
+    }else{
+        for(var i = 0; i < table.length; i++){
+            if(
+                table[i].returnType == func.returnType && 
+                JSON.stringify(argtypes) == JSON.stringify(table[i].arguments)
+            ){
+                return i;
+            }
         }
     }
 
     // add to table
     table.push(new FunctionType(
-        func.returnType,
+        func.returnType ?? func.type,
         argtypes
     ));
 
@@ -47,16 +62,49 @@ function FuncTypesec(AST){
                     var args = AST[i].args.map((arg)=>{
                         return typeToWasm(arg.type);
                     });
+
+                    var returnType;
     
-                    var returnType = typeToWasm(AST[i].returnType);
+                    if(AST[i].returnType != 'void'){
+                        returnType = [typeToWasm(AST[i].returnType)];
+                    }else{
+                        returnType = [];
+                    }
     
                     typesec.push(
                         0x60, // function
                         ...WASM.vector(args), // args
-                        ...WASM.vector([returnType]), // return
+                        ...WASM.vector(returnType), // return
                     );
     
-                    funcsec.push(table.length-1);
+                    funcsec.push(AST[i].id);
+                }else{
+                    funcsec.push(index);
+                }
+            }else if(AST[i].constructor.name == 'Import'){
+                // match the function type to the table
+                var index = matchType(AST[i], table);
+    
+                if(!index){
+                    // create type for function
+                    var args = AST[i].args.map((arg)=>{
+                        return typeToWasm(arg);
+                    });
+
+                    var returnType;
+    
+                    if(AST[i].type != 'void'){
+                        returnType = [typeToWasm(AST[i].type)];
+                    }else{
+                        returnType = [];
+                    }
+    
+                    typesec.push(
+                        0x60, // function
+                        ...WASM.vector(args), // args
+                        ...WASM.vector(returnType), // return
+                    );
+
                 }else{
                     funcsec.push(index);
                 }

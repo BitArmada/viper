@@ -10,6 +10,8 @@ function getFunctionIDs(AST, scope, namespace){
         }else if(AST[i].constructor.name == "Class"){
             // scope[AST[i].name] = {};
             getFunctionIDs(AST[i].body, scope, AST[i].name)
+        }else if(AST[i].constructor.name == "Import"){
+            scope[AST[i].name] = AST[i];
         }
     }
 }
@@ -26,6 +28,7 @@ function resolveFunctionCalls(AST, scope){
         resolveFunctionCalls(AST[i].a, scope)
         resolveFunctionCalls(AST[i].b, scope)
         resolveFunctionCalls(AST[i].condition, scope)
+        resolveFunctionCalls(AST[i].args, scope)
     }
 }
 

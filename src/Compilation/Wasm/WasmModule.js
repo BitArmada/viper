@@ -8,6 +8,7 @@ class WasmModule {
     constructor(AST){
         this.wasm = [];
         [this.typeTable, this.typesec, this.funcsec] = FuncTypesec(AST);
+        console.log(this.typeTable)
         this.importsec = ImportSec(AST);
         this.exportsec = ExportSec(AST);
         this.codesec = CodeSec(AST);
